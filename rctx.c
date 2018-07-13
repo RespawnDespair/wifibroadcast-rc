@@ -20,7 +20,8 @@
 #include <getopt.h>
 #include "lib.h"
 
-#include "/tmp/rctx.h"
+// Put this in a config file...for now, make it build
+#include "rctx.h"
 
 #define UPDATE_INTERVAL 2000 // read Joystick every 2 ms or 500x per second
 #define JOY_CHECK_NTH_TIME 400 // check if joystick disconnected every 400th time or 200ms or 5x per second
