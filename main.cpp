@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <termios.h>
+#include "libini.hpp"
 #include "joystick.h"
 
 struct js_event 
@@ -66,36 +67,82 @@ void usage(void)
     printf(
         "rctx by RespawnDespair. Modfied from joystick_ppm_converter. GPL2\n"
         "\n"
-        "Usage: rctx <settings file> <trim file> <interfaces>\n"
+        "Usage: rctx <config file> <mappings file> <trim file> <interfaces>\n"
         "\n"
         "Example:\n"
-        "  rctx /boot/mappings.ini /boot/user_trims.ini wlan0\n"
+        "  rctx /boot/joyconfig.ini /boot/mappings.ini /boot/user_trims.ini wlan0\n"
         "\n");
     exit(1);
 }
 
 int main(int argc, char *argv[])
 {
-	if (argc < 3) {
+	if (argc < 4) {
 		usage();
 	}
 
+	std::cout << "Loading configuration ..." << argv[1] << std::endl;
+
+	std::ifstream t(argv[1]);
+	std::string str((std::istreambuf_iterator<char>(t)),
+                 std::istreambuf_iterator<char>());
+	auto ini = libini::parse(str);
+
+	std::string joystickPath;
+	std::string outputSerialUsbPath;
+	std::string outputSerialOrWbc;
+	
+	
+
+	for(auto kvp: ini)
+	{
+		auto section_name = kvp.first;
+		auto& section_values = kvp.second;
+
+		if (section_name == "joystick")
+		{
+			// "/dev/input/js0"
+			joystickPath = section_values["joystick_path"];
+		}
+
+		if (section_name == "output")
+		{
+			//"/dev/ttyUSB0"
+			outputSerialUsbPath = section_values["output_serial_usb_path"];
+			outputSerialOrWbc = section_values["output_serial_or_wbc"];
+		}
+	}
+
+	std::cout << "Configuration:" << std::endl
+				<< "joystickPath: " << joystickPath << std::endl
+				<< "outputSerialUsbPath: " << outputSerialUsbPath << std::endl
+				<< "outputSerialOrWbc: " << outputSerialOrWbc << std::endl
+				<< std::endl;
 
 	std::cout << "opening USB" << std::endl;
-	int fdc = open ("/dev/ttyUSB0", O_RDWR | O_NOCTTY | O_SYNC);
+	int fdc = open (outputSerialUsbPath.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
 	set_interface_attribs (fdc, B115200, 0);
-	
-	ppm_file ppm(fdc);
-	//ppm_stream ppm(std::cout);
+
+	ppm_target *ppm;
+
+	if (outputSerialOrWbc == "wbc") {
+		ppm_file ppm_file(fdc);
+		ppm = &ppm_file;
+	} else {
+		ppm_stream ppm_stream(std::cout);
+		ppm = &ppm_stream;
+	}
 
 	sleep(2);
 	
 	std::cout << "opening joystick" << std::endl;
 
-	joystick joy(argv[0], argv[1], ppm);
+	// argv2 is the mappings file
+	// argv3 is the trim file
+	joystick joy(argv[2], argv[3], *ppm);
 	
 	// open joystick
-	int fd = open("/dev/input/js0", O_RDONLY);
+	int fd = open(joystickPath.c_str(), O_RDONLY);
 	
 	js_event e;
 	

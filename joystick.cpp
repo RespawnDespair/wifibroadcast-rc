@@ -4,7 +4,7 @@
 #include <streambuf>
 #include <algorithm>
 
-#include "libini.h"
+#include "libini.hpp"
 
 
 std::string to_lower(std::string str)
@@ -65,7 +65,7 @@ joystick::configuration joystick::loadConfig(std::string strConfigPath)
                  std::istreambuf_iterator<char>());
 	auto ini = libini::parse(str);
 	
-	std::cout << "Loading configuration ..." << std::endl;
+	std::cout << "Loading mappings ..." << std::endl;
 	
 	for(auto kvp: ini)
 	{

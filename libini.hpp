@@ -63,7 +63,7 @@ namespace libini {
         return ltrim(rtrim(s));
     }
 
-    ini_model parse(std::string data) {
+    static inline ini_model parse(std::string data) {
         ini_model model;
 
         std::istringstream stream(data);
