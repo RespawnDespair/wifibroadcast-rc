@@ -6,5 +6,5 @@ add_executable(${PROJECT_NAME} ${sourcefiles})
 
 if (UNIX)
 	add_definitions(-DRASPBERRY_PI)
-	target_link_libraries(${PROJECT_NAME} pthread)
+	target_link_libraries(${PROJECT_NAME} rt pthread)
 endif()

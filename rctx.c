@@ -22,12 +22,12 @@
 
 #include <string.h> //memset
 #include <sys/socket.h>
-#include "libini.h"
+// #include "libini.h"
 
-#include <iostream>
-#include <fstream>
-#include <streambuf>
-#include <algorithm>
+// #include <iostream>
+// #include <fstream>
+// #include <streambuf>
+// #include <algorithm>
 
 // Put this in a config file...for now, make it build
 #include "rctx.h"
@@ -296,11 +296,9 @@ void sendRC(unsigned char seqno, telemetry_data_t *td) {
     framedata.chan6 = rcData[5];
     framedata.chan7 = rcData[6];
     framedata.chan8 = rcData[7];
-#ifdef JSSWITCHES
+#ifdef	JSSWITCHES	
 	framedata.switches = rcData[8];	/// channels 9 - 24 as switches
-//	printf ("rcdata0:%x\t",rcData[8]);
 #endif
-//  printf ("rcdata0:%d\n",rcData[0]);
 
     int best_adapter = 0;
     if(td->rx_status != NULL) {
@@ -322,8 +320,6 @@ void sendRC(unsigned char seqno, telemetry_data_t *td) {
 	printf ("ERROR: Could not open rx status memory!");
     }
 }
-
-
 
 wifibroadcast_rx_status_t *telemetry_wbc_status_memory_open(void) {
     int fd = 0;
@@ -360,27 +356,24 @@ void telemetry_init(telemetry_data_t *td) {
     td->rx_status = telemetry_wbc_status_memory_open();
 }
 
-void parseConfig(std::string strConfigPath) {
-	std::ifstream t(strConfigPath);
-	std::string str((std::istreambuf_iterator<char>(t)),
-                 std::istreambuf_iterator<char>());
-	auto ini = libini::parse(str);
+// void parseConfig(std::string strConfigPath) {
+// 	std::ifstream t(strConfigPath);
+// 	std::string str((std::istreambuf_iterator<char>(t)),
+//                  std::istreambuf_iterator<char>());
+// 	auto ini = libini::parse(str);
 
-	std::cout << "Loading configuration ..." << std::endl;
+// 	std::cout << "Loading configuration ..." << std::endl;
 
-	for(auto kvp: ini)
-	{
-		auto section_name = kvp.first;
-		auto& section_values = kvp.second;
+// 	for(auto kvp: ini)
+// 	{
+// 		auto section_name = kvp.first;
+// 		auto& section_values = kvp.second;
 
-	}
-}
+// 	}
+// }
 
 
 int main (int argc, char *argv[]) {
-	parseConfig("tst");
-
-
     int done = 1;
     int joy_connected = 0;
     int joy = 1;

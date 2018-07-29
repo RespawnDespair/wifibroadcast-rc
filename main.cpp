@@ -62,7 +62,7 @@ int set_interface_attribs (int fd, int speed, int parity)
 	return 0;
 }
 
-void usage(void)
+void usage()
 {
     printf(
         "rctx by RespawnDespair. Modfied from joystick_ppm_converter. GPL2\n"
@@ -75,10 +75,17 @@ void usage(void)
     exit(1);
 }
 
+
+
 int main(int argc, char *argv[])
 {
 	if (argc < 4) {
 		usage();
+	}
+
+	char *interfaces[argc-4];
+	for (int iface = 4; iface < argc; iface++) {
+		interfaces[iface-4] = argv[iface];
 	}
 
 	std::cout << "Loading configuration ..." << argv[1] << std::endl;
@@ -91,8 +98,6 @@ int main(int argc, char *argv[])
 	std::string joystickPath;
 	std::string outputSerialUsbPath;
 	std::string outputSerialOrWbc;
-	
-	
 
 	for(auto kvp: ini)
 	{
@@ -101,36 +106,34 @@ int main(int argc, char *argv[])
 
 		if (section_name == "joystick")
 		{
-			// "/dev/input/js0"
 			joystickPath = section_values["joystick_path"];
 		}
 
 		if (section_name == "output")
 		{
-			//"/dev/ttyUSB0"
 			outputSerialUsbPath = section_values["output_serial_usb_path"];
 			outputSerialOrWbc = section_values["output_serial_or_wbc"];
 		}
 	}
 
 	std::cout << "Configuration:" << std::endl
-				<< "joystickPath: " << joystickPath << std::endl
-				<< "outputSerialUsbPath: " << outputSerialUsbPath << std::endl
-				<< "outputSerialOrWbc: " << outputSerialOrWbc << std::endl
+				<< "Joystick path: " << joystickPath << std::endl
+				<< "Serial Usb path: " << outputSerialUsbPath << std::endl
+				<< "Serial or WBC output: " << outputSerialOrWbc << std::endl
 				<< std::endl;
-
-	std::cout << "opening USB" << std::endl;
-	int fdc = open (outputSerialUsbPath.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
-	set_interface_attribs (fdc, B115200, 0);
 
 	ppm_target *ppm;
 
 	if (outputSerialOrWbc == "wbc") {
+		ppm_wbc ppm_wbc(argc - 4, interfaces);
+		ppm = &ppm_wbc;
+	} else {
+		std::cout << "opening USB Serial connection to Arduino" << std::endl;
+		int fdc = open (outputSerialUsbPath.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+		set_interface_attribs (fdc, B115200, 0);
+
 		ppm_file ppm_file(fdc);
 		ppm = &ppm_file;
-	} else {
-		ppm_stream ppm_stream(std::cout);
-		ppm = &ppm_stream;
 	}
 
 	sleep(2);
