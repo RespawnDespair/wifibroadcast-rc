@@ -2,7 +2,7 @@ Wifibroadcast Joystick to PPM or WBC using Raspberry PI and Arduino
 =========
 
 ## General
-Based on the original works of `dmpriso` (github.com)[https://github.com/dmpriso/joystick_to_ppm].
+Based on the original works of `dmpriso` [github.com](https://github.com/dmpriso/joystick_to_ppm).
 Adapted for use in the Wifibroadcast system. You can toggle between using WBC to send the axis data to the plane or to use the original Arduino -> PPM module solution.
 
 ## Hardware
