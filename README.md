@@ -1,33 +1,24 @@
-Joystick to PPM Adapter using Raspberry PI and Arduino
+Wifibroadcast Joystick to PPM or WBC using Raspberry PI and Arduino
 =========
 
 ## General
-This project is still work in progress, I've done that for a FPV Groundstation. It does not have an UI (perhaps someone wants to write one?), instead, channel mappings are done using a configuration file.
+Based on the original works of `dmpriso` (github.com)[https://github.com/dmpriso/joystick_to_ppm].
+Adapted for use in the Wifibroadcast system. You can toggle between using WBC to send the axis data to the plane or to use the original Arduino -> PPM module solution.
 
 ## Hardware
-All you need is a Raspberry Pi, a Linux compatible Joystick and an Arduino board.
+All you need is a Raspberry Pi, a Linux compatible Joystick and an Arduino board (optional).
 Plug the Joystick into Raspberry. Connect the Raspberry to the Arduino via USB. 
-The Raspberry will use the following devices (this is currently hard-coded)
+The Raspberry will use the devices from joyconfig.ini.
 
-**Joystick:**
-```
-/dev/input/js0
-```
-
-**Serial:**
-```
-/dev/ttyUSB0
-```
-
-The Arduino will output a 12-Channel 22.5ms PPM signal on Pin 10.
+When using the Arduino as output it will generate a 12-Channel 22.5ms PPM signal on Pin 10.
 Arduino code is based on previous work: https://github.com/ckalpha/Generate-PPM-Signal/
 
 ## Configuration
-At the moment, configuration is done via a settings file.
-Path of the settings file is /usr/local/etc/joystick/mappings.ini *TODO: make that customizable via parameter*
+Configuration is done via settings files.
+These ar given as command line arguments to the application.
 
 You can map axis and buttons to output channels, and define special actions for buttons.
-Configuration is an INI file. Ini parsing is based on previous work: https://github.com/atomicptr/libini
+Configuration files are INI files. Ini parsing is based on previous work: https://github.com/atomicptr/libini
 
 ### How do I find axis and button IDs?
 Install jstest on your raspberry and run
@@ -102,21 +93,18 @@ I've added a mapping.ini to the source repo which I wrote for the Saitek X-52 Pr
 ## Building and installing
 
 ### Building
-Install CMake and ninja
 Clone the repo
-Create a build output directory (outside the repo!)
-Inside build dir, run the following:
 
 ```
-cmake path_to_source_dir -G Ninja
-ninja
+cmake ./
+make
 ```
 
 ### Testing
-Create a /usr/local/etc/joystick/mappings.ini and set it up
-Simply run ./joystick_ppm_converter for testing
+Create a `mappings.ini` and set it up
+Simply run `./joystick_ppm_converter` with the correct arguments for testing
 
-### Installing
+### Installing (not needed if used within Wifibroadcast solution)
 In order to let the tool automatically run when the raspberry starts up, copy the executable tool to /usr/local/bin/
 Then, edit /etc/rc.local and add the following line near the end, but before the exit command:
 ```
@@ -130,7 +118,6 @@ The project is still at a very early alpha-stage.
 Most important items to do are:
 
 * Improve file parsing so invalid numbers etc. are catched and proper error messages are emitted
-* Make the INI paths customizable via command parameters
 * Create a GUI for editing the configuration
 * Integrate the GUI and allow for live updating of configuration
 
